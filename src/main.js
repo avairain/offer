@@ -1,22 +1,6 @@
-setInterval(()=>console.log(1),1000)
-class Person {
-    constructor(a){
-        this.a =a 
-    }
-    log(){
-        console.log('class',this.a)
-    }
-}
-// new Person().log()
-
-class Chinese extends Person {
-    constructor(a){
-        super(a)
-    }
-    speack(){
-        console.log('china')
-    }
-}
-var p=new Chinese(222)
-console.dir(p)
-console.dir(p.log())
+import "./less/userinfo.less"
+import MyAjax from "./js/main.js"
+ new MyAjax({
+     url:'http://117.131.17.174:8083/mam-cloud/ugc/getVideosByUser?appId=564&userId=314276022&start=0&limit=10',
+     container:'#container'
+ })

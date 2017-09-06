@@ -1,25 +1,35 @@
 var path = require('path')
 var htmlWebpackPlugin = require('html-webpack-plugin')
 var CleanWebpackPlugin = require('clean-webpack-plugin')
-// var webpack = require('webpack')
+var webpack = require('webpack')
+var ExtractTextWebpackPlugin = require('extract-text-webpack-plugin')
+const extractCSS = new ExtractTextWebpackPlugin('css/[name]-one.css');
+const extractLESS = new ExtractTextWebpackPlugin('css/[name].css');
 module.exports = {
     entry: './src/main.js',
     output: {
         path: path.join(__dirname, './dist'),
-        filename: 'bundle.js'
+        filename: 'js/bundle.js'
     },
     module: {
         rules: [
             { test: /\.js$/, use: 'babel-loader', exclude: /node_modules/ },
             { test: /\.css$/, use: ['style-loader', 'css-loader'] },
             { test: /\.scss/, use: ['style-loader', 'css-loader', 'sass-loader'] },
-            { test: /\.(jpg|gif|png|bmp)$/, use: 'url-loader' }
+            { test: /\.(jpg|gif|png|bmp)$/, use: 'url-loader?limit=1024&name=images/[hash:7]-[name].[ext]'},
+            {
+                test: /\.less$/,
+                use: extractLESS.extract({ use: ['css-loader', 'less-loader'], publicPath: '../' }),
+
+            },
         ]
     },
     plugins: [
+        extractCSS,
+        extractLESS,
         new htmlWebpackPlugin({
-            template: path.join(__dirname, "./src/index.html"),//模版
-            filename: "index.html", //文件名
+            template: "html-withimg-loader!" + path.join(__dirname, "./src/jsp/index.html"),//模版
+            filename: "jsp/index.html", //文件名
             minify: {
                 collapseWhitespace: true, // 合并空白字符
                 removeComments: true, // 移除注释
@@ -27,7 +37,18 @@ module.exports = {
             }
 
         }),
-        new CleanWebpackPlugin(['dist'])
+        new webpack.optimize.UglifyJsPlugin({
+            commpress: {
+                warnings: false  //移除警告
+            }
+        }),
+        //压缩js
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': '"production"'  //进一步压缩JS 但效果不明显
+        }),
+        new CleanWebpackPlugin(['dist']),
+
+        new ExtractTextWebpackPlugin('css/styles.css')
     ]
     /*分离第三方包
     entry:{
